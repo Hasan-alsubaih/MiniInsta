@@ -1,0 +1,3 @@
+node_modules/
+.env
+mongodb+srv://alsubaihhassan:qRQvftSWtt83oHvj@merncluster.k2lxm.mongodb.net/mini-instagram?retryWrites=true&w=majority&appName=Merncluster
