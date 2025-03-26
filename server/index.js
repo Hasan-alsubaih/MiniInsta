@@ -13,12 +13,23 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "https://mini-instaclient.vercel.app"],
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://mini-instaclient.vercel.app",
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -43,3 +54,4 @@ app.listen(port, () => {
 (async function () {
   await DBConnection();
 })();
+export default app;
