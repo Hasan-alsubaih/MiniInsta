@@ -20,7 +20,7 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin) || origin === undefined) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -28,11 +28,6 @@ const corsOptions = {
   },
   credentials: true,
 };
-
-app.use((req, res, next) => {
-  console.log("🔁 Request Origin:", req.headers.origin);
-  next();
-});
 
 app.use(cors(corsOptions));
 
@@ -59,5 +54,4 @@ app.listen(port, () => {
 (async function () {
   await DBConnection();
 })();
-
 export default app;
