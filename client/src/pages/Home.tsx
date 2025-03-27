@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Button,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import CreatePost from "../components/CreatePostForm";
 import PostCard from "../components/PostCard";
 import { useAuth } from "../context/AuthContext";
@@ -65,10 +66,13 @@ const Home = () => {
   const handleDeletePost = async (postId: string) => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/posts/${postId}/delete`, {
-  method: "DELETE",
-  headers: { Authorization: `Bearer ${token}` },
-});
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/posts/${postId}/delete`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (res.ok) {
         setPosts((prevPosts) =>
@@ -87,12 +91,20 @@ const Home = () => {
     <Container maxWidth="sm" sx={{ marginTop: 4 }}>
       <Button
         variant="contained"
-        color="primary"
         fullWidth
         onClick={() => setShowCreatePost(!showCreatePost)}
-        sx={{ marginBottom: 2 }}
+        startIcon={<AddIcon />}
+        sx={{
+          marginBottom: 2,
+          background: "linear-gradient(to right, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)",
+          color: "#fff",
+          fontWeight: "bold",
+          '&:hover': {
+            background: "linear-gradient(to right, #e6683c, #dc2743, #cc2366, #5f0a87)"
+          }
+        }}
       >
-        +
+        Create Post
       </Button>
 
       {showCreatePost && <CreatePost onPostCreated={handlePostCreated} />}

@@ -10,6 +10,7 @@ import {
   MenuItem,
   TextField,
   Button,
+  Divider,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -60,15 +61,17 @@ const PostCard = ({
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/posts/${id}/toggleLike`, {
-  method: "POST",
-  headers: { Authorization: `Bearer ${token}` },
-});
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/posts/${id}/toggleLike`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok && data.post) {
-  
         fetchPosts();
       } else {
         alert(data.message || "Failed to toggle like.");
@@ -84,14 +87,17 @@ const PostCard = ({
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/posts/${id}/addComment`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  },
-  body: JSON.stringify({ text: commentText }),
-});
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/posts/${id}/addComment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ text: commentText }),
+        }
+      );
 
       const data = await response.json();
 
@@ -111,11 +117,13 @@ const PostCard = ({
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/posts/${id}/deleteComment/${commentId}`, {
-  method: "DELETE",
-  headers: { Authorization: `Bearer ${token}` },
-});
-
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/posts/${id}/deleteComment/${commentId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       const data = await response.json();
 
@@ -157,7 +165,12 @@ const PostCard = ({
         </Menu>
       </Box>
 
-      <CardMedia component="img" height="350" image={postImage} />
+      <CardMedia
+        component="img"
+        height="350"
+        image={postImage}
+        sx={{ borderRadius: 2 }}
+      />
 
       <CardContent>
         <Typography variant="body1" sx={{ marginTop: 1 }}>
@@ -165,35 +178,43 @@ const PostCard = ({
         </Typography>
 
         <Box sx={{ display: "flex", gap: 2, marginBottom: 1 }}>
-          {/* <IconButton color={isLiked ? "error" : "default"} onClick={handleLikePost}> */}
           <IconButton
             color={isFavorite ? "error" : "default"}
             onClick={handleLikePost}
+            sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
           >
-            <FavoriteIcon /> {likes.length}
+            <FavoriteIcon />
+            <Typography variant="body2">{likes.length}</Typography>
           </IconButton>
           <IconButton>
             <ChatBubbleOutlineIcon sx={{ color: "gray" }} />
           </IconButton>
         </Box>
 
-        <TextField
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          label="Add a comment"
-          fullWidth
-          size="small"
-        />
-        <Button
-          variant="contained"
-          onClick={handleAddComment}
-          sx={{ marginTop: 1 }}
-        >
-          Comment
-        </Button>
+        <Box sx={{ display: "flex", gap: 1, marginTop: 2 }}>
+          <TextField
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            label="Add a comment"
+            fullWidth
+            size="small"
+          />
+          <Button variant="contained" onClick={handleAddComment}>
+            Comment
+          </Button>
+        </Box>
 
-        <Box sx={{ maxHeight: 150, overflowY: "auto", marginTop: 1 }}>
-          {Array.isArray(postComments) &&
+        <Divider sx={{ marginTop: 2, marginBottom: 1 }} />
+
+        <Box sx={{ maxHeight: 150, overflowY: "auto" }}>
+          {postComments.length === 0 ? (
+            <Typography
+              variant="body2"
+              sx={{ color: "gray", fontStyle: "italic" }}
+            >
+              No comments yet.
+            </Typography>
+          ) : (
             postComments.map((comment) => (
               <Box
                 key={comment._id}
@@ -210,11 +231,20 @@ const PostCard = ({
                   <DeleteIcon />
                 </IconButton>
               </Box>
-            ))}
+            ))
+          )}
         </Box>
 
-        <Typography variant="caption" sx={{ display: "block", marginTop: 2 }}>
-          {new Date(createdAt).toLocaleDateString("en-GB")}
+        <Typography
+          variant="caption"
+          sx={{ display: "block", marginTop: 2, color: "gray" }}
+        >
+          {`Posted on ${new Date(createdAt).toLocaleDateString("en-GB")} at ${new Date(
+            createdAt
+          ).toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}`}
         </Typography>
       </CardContent>
     </Card>
