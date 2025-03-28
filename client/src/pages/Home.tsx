@@ -13,7 +13,7 @@ import { useAuth } from "../context/AuthContext";
 
 interface Post {
   _id: string;
-  user: { username: string; profilePic: string };
+  user: { username: string; profilePic: string } | null;
   image: string;
   caption: string;
   likes: string[];
@@ -31,7 +31,6 @@ const Home = () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/posts/all`);
       const data = await res.json();
-      console.log("Posts Data:", data);
       const formattedPosts = data
         .map((post: any) => ({
           ...post,
@@ -75,9 +74,7 @@ const Home = () => {
       );
 
       if (res.ok) {
-        setPosts((prevPosts) =>
-          prevPosts.filter((post) => post._id !== postId)
-        );
+        setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
       } else {
         alert("Failed to delete post.");
       }
@@ -96,12 +93,14 @@ const Home = () => {
         startIcon={<AddIcon />}
         sx={{
           marginBottom: 2,
-          background: "linear-gradient(to right, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)",
+          background:
+            "linear-gradient(to right, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)",
           color: "#fff",
           fontWeight: "bold",
-          '&:hover': {
-            background: "linear-gradient(to right, #e6683c, #dc2743, #cc2366, #5f0a87)"
-          }
+          "&:hover": {
+            background:
+              "linear-gradient(to right, #e6683c, #dc2743, #cc2366, #5f0a87)",
+          },
         }}
       >
         Create Post
@@ -121,8 +120,8 @@ const Home = () => {
             <Box key={post._id} sx={{ marginBottom: 3 }}>
               <PostCard
                 id={post._id}
-                username={post.user.username}
-                userImage={post.user.profilePic || "/images/defaultProfile.jpg"}
+                username={post.user ? post.user.username : "Deleted User"}
+                userImage={post.user?.profilePic || "/images/defaultProfile.jpg"}
                 postImage={post.image}
                 caption={post.caption}
                 likes={post.likes}

@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import colors from "colors";
 import userRoutes from "./routes/userRoutes.js";
-import testRoutes from "./routes/testRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import cloudinary from "./config/cloudinary.js";
 
@@ -35,7 +34,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/users", userRoutes);
-app.use("/api/test", testRoutes);
 app.use("/api/posts", postRoutes);
 
 async function DBConnection() {
@@ -54,4 +52,5 @@ app.listen(port, () => {
 (async function () {
   await DBConnection();
 })();
+
 export default app;

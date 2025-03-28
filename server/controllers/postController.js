@@ -51,7 +51,9 @@ export const getPosts = async (req, res) => {
       .populate("comments.user", "username profilePic")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(posts);
+    const filteredPosts = posts.filter((post) => post.user !== null);
+
+    res.status(200).json(filteredPosts);
   } catch (error) {
     res
       .status(500)

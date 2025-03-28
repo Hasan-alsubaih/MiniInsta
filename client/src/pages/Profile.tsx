@@ -24,7 +24,11 @@ const Profile = () => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(!user);
 
-  const [snackbar, setSnackbar] = useState({
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({
     open: false,
     message: "",
     severity: "success",
@@ -72,6 +76,35 @@ const Profile = () => {
     setUser(null);
     setToken(null);
     navigate("/login");
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete your account permanently?");
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/users/deleteUser/${user?.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(data.message);
+        handleLogout();
+      } else {
+        alert(data.message || "Failed to delete account.");
+      }
+    } catch (error) {
+      alert("An error occurred while deleting your account.");
+      console.error(error);
+    }
   };
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -221,18 +254,52 @@ const Profile = () => {
             </Typography>
           </Grid>
         </Grid>
+        <Box
+          sx={{
+            marginTop: 3,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2,
+            flexWrap: "wrap",
+          }}
+        >
+          {!isEditing && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setIsEditing(true)}
+              sx={{
+                fontWeight: "bold",
+                width: 140,
+              }}
+            >
+              Edit Profile
+            </Button>
+          )}
 
-        <Box sx={{ marginTop: 3 }}>
           <Button
-            variant="contained"
-            color="primary"
-            sx={{ marginRight: 2 }}
-            onClick={() => setIsEditing(!isEditing)}
+            variant="outlined"
+            color="error"
+            onClick={handleLogout}
+            sx={{
+              fontWeight: "bold",
+              width: 140,
+            }}
           >
-            {isEditing ? "Cancel" : "Edit Profile"}
-          </Button>
-          <Button variant="outlined" color="error" onClick={handleLogout}>
             Logout
+          </Button>
+
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={handleDeleteAccount}
+            sx={{
+              fontWeight: "bold",
+              width: 140,
+            }}
+          >
+            Delete
           </Button>
         </Box>
       </Paper>
@@ -244,7 +311,7 @@ const Profile = () => {
       >
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity as "success" | "error"}
+          severity={snackbar.severity}
           sx={{ width: "100%" }}
         >
           {snackbar.message}

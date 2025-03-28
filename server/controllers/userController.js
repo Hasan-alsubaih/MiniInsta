@@ -1,4 +1,5 @@
 import User from "../models/userModel.js";
+import Post from "../models/postModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
@@ -33,15 +34,11 @@ export const registerUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  console.log("🔍 Received Data:", { email, password });
 
   try {
     const user = await User.findOne({ email });
-    console.log("👤 Found User in DB:", user);
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      console.log(" Password Matched - Login Successful");
-
       res.json({
         _id: user._id,
         username: user.username,
@@ -50,11 +47,9 @@ export const loginUser = async (req, res) => {
         token: generateToken(user._id),
       });
     } else {
-      console.log(" Invalid email or password");
       res.status(401).json({ message: "Invalid email or password" });
     }
   } catch (error) {
-    console.error(" Error in Login Controller:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -63,6 +58,26 @@ export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     user ? res.json(user) : res.status(404).json({ message: "User not found" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    await Post.deleteMany({ user: userId });
+    await User.findByIdAndDelete(userId);
+
+    res
+      .status(200)
+      .json({ message: "User and related posts deleted successfully." });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

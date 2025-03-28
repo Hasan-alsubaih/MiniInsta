@@ -8,6 +8,7 @@ import {
   searchUsers,
   getFollowing,
   getFollowers,
+  deleteUser,
 } from "../controllers/userController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 import upload from "../middlewares/multer.js";
@@ -31,5 +32,7 @@ router.get("/search", searchUsers);
 
 router.get("/:id/following", getFollowing);
 router.get("/:id/followers", getFollowers);
+
+router.delete("/deleteUser/:id", protect, deleteUser);
 
 export default router;

@@ -26,7 +26,7 @@ interface PostProps {
   postImage: string;
   caption: string;
   likes: string[];
-  comments: Array<{ _id: string; user: { username: string }; text: string }>;
+  comments: Array<{ _id: string; user: { username: string } | null; text: string }>;
   createdAt: string;
   onDelete: (postId: string) => void;
   fetchPosts: () => void;
@@ -128,9 +128,7 @@ const PostCard = ({
       const data = await response.json();
 
       if (response.ok) {
-        setPostComments((prev) =>
-          prev.filter((comment) => comment._id !== commentId)
-        );
+        setPostComments((prev) => prev.filter((comment) => comment._id !== commentId));
       } else {
         alert(data.message || "Failed to delete comment.");
       }
@@ -149,11 +147,7 @@ const PostCard = ({
         <IconButton onClick={handleMenuOpen} sx={{ marginLeft: "auto" }}>
           <MoreVertIcon />
         </IconButton>
-        <Menu
-          anchorEl={menuAnchor}
-          open={Boolean(menuAnchor)}
-          onClose={handleMenuClose}
-        >
+        <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleMenuClose}>
           <MenuItem
             onClick={() => {
               onDelete(id);
@@ -165,12 +159,7 @@ const PostCard = ({
         </Menu>
       </Box>
 
-      <CardMedia
-        component="img"
-        height="350"
-        image={postImage}
-        sx={{ borderRadius: 2 }}
-      />
+      <CardMedia component="img" height="350" image={postImage} sx={{ borderRadius: 2 }} />
 
       <CardContent>
         <Typography variant="body1" sx={{ marginTop: 1 }}>
@@ -207,44 +196,23 @@ const PostCard = ({
         <Divider sx={{ marginTop: 2, marginBottom: 1 }} />
 
         <Box sx={{ maxHeight: 150, overflowY: "auto" }}>
-          {postComments.length === 0 ? (
-            <Typography
-              variant="body2"
-              sx={{ color: "gray", fontStyle: "italic" }}
+          {postComments.map((comment) => (
+            <Box
+              key={comment._id}
+              sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
             >
-              No comments yet.
-            </Typography>
-          ) : (
-            postComments.map((comment) => (
-              <Box
-                key={comment._id}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography variant="body2">
-                  <b>{comment.user.username}:</b> {comment.text}
-                </Typography>
-                <IconButton onClick={() => handleDeleteComment(comment._id)}>
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-            ))
-          )}
+              <Typography variant="body2">
+                <b>{comment.user?.username || "Deleted User"}:</b> {comment.text}
+              </Typography>
+              <IconButton onClick={() => handleDeleteComment(comment._id)}>
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          ))}
         </Box>
 
-        <Typography
-          variant="caption"
-          sx={{ display: "block", marginTop: 2, color: "gray" }}
-        >
-          {`Posted on ${new Date(createdAt).toLocaleDateString("en-GB")} at ${new Date(
-            createdAt
-          ).toLocaleTimeString("en-GB", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}`}
+        <Typography variant="caption" sx={{ marginTop: 2, color: "gray" }}>
+          Posted on {new Date(createdAt).toLocaleString()}
         </Typography>
       </CardContent>
     </Card>
