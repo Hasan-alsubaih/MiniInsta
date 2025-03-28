@@ -33,10 +33,9 @@ export const createPost = async (req, res) => {
       .populate("user", "username profilePic")
       .populate("comments.user", "username profilePic");
 
-    res.status(201).json({
-      message: "Post created successfully",
-      post: populatedPost,
-    });
+    res
+      .status(201)
+      .json({ message: "Post created successfully", post: populatedPost });
   } catch (error) {
     res
       .status(500)
@@ -51,7 +50,14 @@ export const getPosts = async (req, res) => {
       .populate("comments.user", "username profilePic")
       .sort({ createdAt: -1 });
 
-    const filteredPosts = posts.filter((post) => post.user !== null);
+    const filteredPosts = posts
+      .filter((post) => post.user !== null)
+      .map((post) => {
+        post.comments = post.comments.filter(
+          (comment) => comment.user !== null
+        );
+        return post;
+      });
 
     res.status(200).json(filteredPosts);
   } catch (error) {
@@ -71,8 +77,9 @@ export const getPostById = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    const userId = req.user?._id;
+    post.comments = post.comments.filter((comment) => comment.user !== null);
 
+    const userId = req.user?._id;
     const isLiked = userId ? post.likes.includes(userId.toString()) : false;
 
     res.status(200).json({
@@ -112,15 +119,13 @@ export const addNewComment = async (req, res) => {
       return res.status(404).json({ message: "Post not found." });
     }
 
-    res.status(200).json({
-      message: "Comment added successfully",
-      post: updatedPost,
-    });
+    res
+      .status(200)
+      .json({ message: "Comment added successfully", post: updatedPost });
   } catch (error) {
-    res.status(500).json({
-      message: "Error adding comment",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ message: "Error adding comment", error: error.message });
   }
 };
 
@@ -141,9 +146,9 @@ export const deleteComment = async (req, res) => {
 
     const comment = post.comments[commentIndex];
     if (comment.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        message: "Sorry, you can delete only your own comments.",
-      });
+      return res
+        .status(403)
+        .json({ message: "Sorry, you can delete only your own comments." });
     }
 
     post.comments.splice(commentIndex, 1);
@@ -154,10 +159,9 @@ export const deleteComment = async (req, res) => {
       comments: post.comments,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Error deleting comment",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ message: "Error deleting comment", error: error.message });
   }
 };
 
@@ -176,9 +180,9 @@ export const deletePost = async (req, res) => {
     }
 
     if (post.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        message: "You can only delete your own posts.",
-      });
+      return res
+        .status(403)
+        .json({ message: "You can only delete your own posts." });
     }
 
     await Post.findByIdAndDelete(postId);
